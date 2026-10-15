@@ -1,0 +1,72 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SmartImage from '../../components/ui/SmartImage.astro';
+import Badge from '../../components/ui/Badge.astro';
+import { getAllPosts, getPost } from '../../lib/api';
+import { blocksToHtml } from '../../lib/blocks';
+
+export async function getStaticPaths() {
+  try {
+    const posts = await getAllPosts();
+    return posts.map((p) => ({ params: { slug: p.slug } }));
+  } catch {
+    return [];
+  }
+}
+
+const { slug } = Astro.params;
+const post = slug ? await getPost(slug) : null;
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const fmt = (d: string) =>
+  new Date(d).toLocaleDateString('ru-RU', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.title,
+  image: post.cover?.url,
+  datePublished: post.publishedAt,
+  author: post.author ? { '@type': 'Person', name: post.author.name } : undefined,
+};
+---
+<Layout
+  title={`${post.title} — Agency`}
+  description={post.excerpt ?? undefined}
+  ogImage={post.cover?.url}
+  jsonLd={jsonLd}
+>
+  <article class="max-w-3xl mx-auto px-4 py-16">
+    <a href="/blog" class="text-sm text-blue-600 hover:underline">← Все статьи</a>
+
+    <div class="mt-4 flex items-center gap-3">
+      {post.category?.[0] && <Badge>{post.category[0].name}</Badge>}
+      <span class="text-sm text-gray-500">{fmt(post.publishedAt)}</span>
+    </div>
+
+    <h1 class="text-4xl font-bold mt-4 mb-6">{post.title}</h1>
+
+    {post.cover && (
+      <SmartImage media={post.cover}
+                  class="w-full rounded-2xl mb-8 aspect-video object-cover" eager />
+    )}
+
+    <div class="prose" set:html={blocksToHtml(post.content)} />
+
+    {post.authors?.[0] && (
+  <div class="mt-10 pt-6 border-t flex items-center gap-4">
+    <div>
+      <p class="font-semibold">{post.authors[0].name}</p>
+      {post.authors[0].bio && (
+        <p class="text-sm text-gray-600">{post.authors[0].bio}</p>
+      )}
+    </div>
+  </div>
+)}
+  </article>
+</Layout>

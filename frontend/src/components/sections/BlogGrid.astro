@@ -1,0 +1,48 @@
+---
+import Card from '../ui/Card.astro';
+import Badge from '../ui/Badge.astro';
+import SmartImage from '../ui/SmartImage.astro';
+import type { Post } from '../../lib/types';
+
+interface Props {
+  posts: Post[];
+  title?: string;
+}
+
+const { posts, title = 'Последние статьи' } = Astro.props;
+
+const fmt = (d: string) =>
+  new Date(d).toLocaleDateString('ru-RU', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  });
+---
+<section class="py-8 max-w-6xl mx-auto px-4">
+  {title && <h2 class="text-3xl md:text-4xl font-bold mb-10">{title}</h2>}
+
+  {posts.length === 0 ? (
+    <p class="text-gray-500 py-12 text-center">Пока нет статей.</p>
+  ) : (
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {posts.map((p) => {
+        const cat = p.category?.[0];
+        const auth = p.authors?.[0];
+        return (
+          <Card href={`/blog/${p.slug}`} class="flex flex-col">
+            <SmartImage
+              media={p.cover}
+              class="w-full aspect-video object-cover rounded-xl mb-4"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+            {cat && <Badge>{cat.name}</Badge>}
+            <h3 class="font-semibold text-lg mt-3 mb-2">{p.title}</h3>
+            {p.excerpt && <p class="text-gray-600 text-sm line-clamp-2">{p.excerpt}</p>}
+            <div class="mt-auto pt-4 text-xs text-gray-500 flex items-center gap-2">
+              <span>{fmt(p.publishedAt)}</span>
+              {auth && <span>· {auth.name}</span>}
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  )}
+</section>

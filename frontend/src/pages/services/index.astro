@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Hero from '../../components/sections/Hero.astro';
+import ServicesGrid from '../../components/sections/ServicesGrid.astro';
+import { getServices } from '../../lib/api';
+
+const services = await getServices();
+---
+<Layout title="Услуги — Agency" description="Наши услуги">
+  <Hero title="Услуги" subtitle="Что мы умеем" />
+  <ServicesGrid services={services} title="" />
+</Layout>

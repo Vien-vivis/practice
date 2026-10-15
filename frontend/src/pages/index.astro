@@ -1,0 +1,22 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/sections/Hero.astro';
+import ServicesGrid from '../components/sections/ServicesGrid.astro';
+import BlogGrid from '../components/sections/BlogGrid.astro';
+import { getServices, getPosts } from '../lib/api';
+
+const services = await getServices();
+const { items: posts } = await getPosts({ pageSize: 3 });
+---
+<Layout title="Agency — digital-студия" description="Разработка сайтов, дизайн, маркетинг">
+  <Hero
+    title="Создаём сайты, которые работают"
+    subtitle="Разработка, дизайн и продвижение под ключ"
+    ctaText="Обсудить проект"
+    ctaHref="/contact"
+    secondaryText="Наши услуги"
+    secondaryHref="/services"
+  />
+  <ServicesGrid services={services} />
+  <BlogGrid posts={posts} title="Из блога" />
+</Layout>

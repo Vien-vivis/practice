@@ -1,0 +1,37 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SmartImage from '../../components/ui/SmartImage.astro';
+import Button from '../../components/ui/Button.astro';
+import { getServices, getService } from '../../lib/api';
+import { blocksToHtml } from '../../lib/blocks'; 
+
+export async function getStaticPaths() {
+  try {
+    const services = await getServices();
+    return services.map((s) => ({ params: { slug: s.slug } }));
+  } catch {
+    return [];
+  }
+}
+
+const { slug } = Astro.params;
+const service = slug ? await getService(slug) : null;
+
+if (!service) {
+  return Astro.redirect('/404');
+}
+---
+<Layout title={`${service.title} — Agency`} description={service.description?.slice(0, 160)}>
+  <article class="max-w-3xl mx-auto px-4 py-16">
+    {service.image && (
+      <SmartImage media={service.image}
+                  class="w-full rounded-2xl mb-8 aspect-video object-cover" eager />
+    )}
+    <h1 class="text-4xl font-bold mb-4">{service.title}</h1>
+    <div class="prose" set:html={blocksToHtml(service.description)} />
+
+    <div class="mt-10">
+      <Button href="/contact" size="lg">Обсудить проект</Button>
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,86 @@
+---
+---
+<section class="py-16 max-w-3xl mx-auto px-4">
+  <h2 class="text-3xl font-bold mb-6">Оставить заявку</h2>
+
+  <form id="contact-form" class="space-y-4" novalidate>
+    <div>
+      <label for="cf-name" class="block text-sm font-medium mb-1.5">
+        Имя <span class="text-red-500">*</span>
+      </label>
+      <input id="cf-name" name="name" required
+             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+    </div>
+
+    <div>
+      <label for="cf-email" class="block text-sm font-medium mb-1.5">
+        Email <span class="text-red-500">*</span>
+      </label>
+      <input id="cf-email" name="email" type="email" required
+             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+    </div>
+
+    <div>
+      <label for="cf-message" class="block text-sm font-medium mb-1.5">
+        Сообщение <span class="text-red-500">*</span>
+      </label>
+      <textarea id="cf-message" name="message" rows="5" required
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+    </div>
+
+    <button type="submit"
+            class="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+      Отправить
+    </button>
+
+    <p id="cf-status" class="text-sm"></p>
+  </form>
+</section>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const status = document.getElementById('cf-status') as HTMLParagraphElement | null;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form || !status) return;
+
+    const btn = form.querySelector('button[type=submit]') as HTMLButtonElement;
+    const data = new FormData(form);
+    const payload = {
+      name: String(data.get('name') ?? '').trim(),
+      email: String(data.get('email') ?? '').trim(),
+      message: String(data.get('message') ?? '').trim(),
+    };
+
+    if (!payload.name || !payload.email || !payload.message) {
+      status.textContent = 'Заполните все поля';
+      status.className = 'text-sm text-red-600';
+      return;
+    }
+
+    btn.disabled = true;
+    status.textContent = 'Отправка...';
+    status.className = 'text-sm text-gray-600';
+
+    try {
+      const base = import.meta.env.PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+      const res = await fetch(`${base}/api/requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: payload }),
+      });
+
+      if (!res.ok) throw new Error('bad response');
+
+      status.textContent = 'Спасибо! Мы свяжемся с вами.';
+      status.className = 'text-sm text-green-600';
+      form.reset();
+    } catch {
+      status.textContent = 'Ошибка отправки. Попробуйте позже.';
+      status.className = 'text-sm text-red-600';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>

@@ -1,0 +1,103 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BlogGrid from '../../components/sections/BlogGrid.astro';
+import Hero from '../../components/sections/Hero.astro';
+import { getPosts, getCategories } from '../../lib/api';
+
+const page = Math.max(1, Number(Astro.url.searchParams.get('page') ?? 1));
+const category = Astro.url.searchParams.get('category') ?? undefined;
+const q = (Astro.url.searchParams.get('q') ?? '').trim().toLowerCase();
+
+const categories = await getCategories();
+const { items, pageCount } = await getPosts({ page, category, pageSize: 6 });
+
+// Поиск по заголовку и эксцерпту — уже внутри выбранной категории
+const filtered = q
+  ? items.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        (p.excerpt ?? '').toLowerCase().includes(q)
+    )
+  : items;
+
+const buildPageUrl = (p: number) => {
+  const params = new URLSearchParams();
+  if (p > 1) params.set('page', String(p));
+  if (category) params.set('category', category);
+  if (q) params.set('q', q);
+  const s = params.toString();
+  return `/blog${s ? `?${s}` : ''}`;
+};
+---
+<Layout title="Блог — Agency" description="Статьи и новости">
+  <Hero title="Блог" subtitle="Статьи, кейсы, гайды" />
+
+  <section class="max-w-6xl mx-auto px-4 py-12">
+    <!-- ФИЛЬТР -->
+    <form method="get" class="flex flex-wrap gap-3 mb-10">
+      <input
+        type="search"
+        name="q"
+        value={q}
+        placeholder="Поиск..."
+        class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+
+      <select
+        name="category"
+        class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
+        <option value="" selected={!category}>Все категории</option>
+        {categories.map((c) => (
+          <option value={c.slug} selected={c.slug === category}>
+            {c.name}
+          </option>
+        ))}
+      </select>
+
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+      >
+        Найти
+      </button>
+
+      {category && (
+        <a
+          href="/blog"
+          class="text-sm text-blue-600 hover:underline self-center"
+        >
+          Сбросить
+        </a>
+      )}
+    </form>
+
+    <!-- РЕЗУЛЬТАТЫ -->
+    {filtered.length === 0 ? (
+      <p class="text-gray-500 py-12 text-center">
+        Ничего не найдено. Попробуйте другую категорию или сбросьте фильтр.
+      </p>
+    ) : (
+      <BlogGrid posts={filtered} title="" />
+    )}
+
+    <!-- ПАГИНАЦИЯ -->
+    {pageCount > 1 && (
+      <nav class="flex justify-center gap-2 mt-12">
+        {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => (
+          <a
+            href={buildPageUrl(p)}
+            class:list={[
+              'px-3.5 py-1.5 rounded border text-sm',
+              p === page
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'border-gray-300 hover:bg-gray-50',
+            ]}
+          >
+            {p}
+          </a>
+        ))}
+      </nav>
+    )}
+  </section>
+</Layout>

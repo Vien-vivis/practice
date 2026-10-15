@@ -1,0 +1,55 @@
+---
+import type { Media } from '../../lib/types';
+
+interface Props {
+  media?: Media | null;
+  class?: string;
+  sizes?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  eager?: boolean;
+}
+
+const {
+  media, class: cls = '', sizes = '100vw', alt, width, height, eager = false,
+} = Astro.props;
+
+const baseUrl = import.meta.env.STRAPI_URL ?? 'http://localhost:1337';
+const toAbs = (url: string) => (url.startsWith('http') ? url : `${baseUrl}${url}`);
+
+let src = '';
+let srcset = '';
+
+if (media?.url) {
+  src = toAbs(media.url);
+  const f = media.formats ?? {};
+  const candidates: string[] = [];
+  if (f.thumbnail) candidates.push(`${toAbs(f.thumbnail.url)} ${f.thumbnail.width}w`);
+  if (f.small) candidates.push(`${toAbs(f.small.url)} ${f.small.width}w`);
+  if (f.medium) candidates.push(`${toAbs(f.medium.url)} ${f.medium.width}w`);
+  if (f.large) candidates.push(`${toAbs(f.large.url)} ${f.large.width}w`);
+  srcset = candidates.join(', ');
+}
+---
+{src ? (
+  <img
+    src={src}
+    srcset={srcset || undefined}
+    sizes={sizes}
+    alt={alt ?? media?.alternativeText ?? ''}
+    width={width}
+    height={height}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+    class={cls}
+  />
+) : (
+  <div class={`bg-gray-200 flex items-center justify-center text-gray-400 ${cls}`}>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-5-5L5 21" />
+    </svg>
+  </div>
+)}

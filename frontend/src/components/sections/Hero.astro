@@ -1,0 +1,30 @@
+---
+import Button from '../ui/Button.astro';
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaHref?: string;
+  secondaryText?: string;
+  secondaryHref?: string;
+}
+
+const {
+  title, subtitle,
+  ctaText = 'Связаться', ctaHref = '/contact',
+  secondaryText, secondaryHref,
+} = Astro.props;
+---
+<section class="bg-gradient-to-br from-blue-50 to-white">
+  <div class="max-w-6xl mx-auto px-4 py-20 md:py-28">
+    <h1 class="text-4xl md:text-6xl font-bold tracking-tight max-w-3xl">{title}</h1>
+    {subtitle && <p class="mt-6 text-lg md:text-xl text-gray-600 max-w-2xl">{subtitle}</p>}
+    <div class="mt-8 flex flex-wrap gap-4">
+      <Button href={ctaHref} size="lg">{ctaText}</Button>
+      {secondaryText && secondaryHref && (
+        <Button href={secondaryHref} variant="outline" size="lg">{secondaryText}</Button>
+      )}
+    </div>
+  </div>
+</section>

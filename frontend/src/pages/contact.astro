@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/sections/Hero.astro';
+import ContactForm from '../components/sections/ContactForm.astro';
+---
+<Layout title="Контакты — Agency" description="Свяжитесь с нами">
+  <Hero title="Контакты" subtitle="Расскажите о своём проекте" />
+
+  <section class="max-w-6xl mx-auto px-4 py-12 grid gap-10 md:grid-cols-2">
+    <div>
+      <h2 class="text-2xl font-bold mb-4">Наши контакты</h2>
+      <ul class="space-y-3 text-gray-700">
+        <li><strong>Email:</strong> hello@agency.ru</li>
+        <li><strong>Телефон:</strong> +7 (999) 123-45-67</li>
+        <li><strong>Адрес:</strong> Москва, ул. Примерная, 1</li>
+      </ul>
+    </div>
+
+    <ContactForm />
+  </section>
+</Layout>

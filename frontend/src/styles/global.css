@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2563eb;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body { @apply bg-white text-gray-900 antialiased; }
+
+.prose h1 { @apply text-3xl font-bold mt-8 mb-4; }
+.prose h2 { @apply text-2xl font-bold mt-6 mb-3; }
+.prose h3 { @apply text-xl font-semibold mt-4 mb-2; }
+.prose p  { @apply my-3 leading-relaxed; }
+.prose ul { @apply list-disc pl-6 my-3; }
+.prose ol { @apply list-decimal pl-6 my-3; }
+.prose a  { @apply text-blue-600 underline; }
+.prose img { @apply rounded-xl my-4; }
+.prose blockquote { @apply border-l-4 border-blue-500 pl-4 italic text-gray-700 my-4; }

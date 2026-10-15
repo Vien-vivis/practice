@@ -1,0 +1,58 @@
+---
+const links = [
+  { href: '/', label: 'Главная' },
+  { href: '/services', label: 'Услуги' },
+  { href: '/blog', label: 'Блог' },
+  { href: '/about', label: 'О нас' },
+  { href: '/contact', label: 'Контакты' },
+];
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b">
+  <nav class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a href="/" class="font-bold text-xl text-blue-600">Agency</a>
+
+    <ul class="hidden md:flex gap-6">
+      {links.map((l) => (
+        <li>
+          <a href={l.href}
+             class:list={[
+               'text-sm font-medium transition',
+               isActive(l.href) ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600',
+             ]}>{l.label}</a>
+        </li>
+      ))}
+    </ul>
+
+    <button id="menu-toggle" class="md:hidden p-2" aria-label="Меню" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 6h18M3 12h18M3 18h18" />
+      </svg>
+    </button>
+  </nav>
+
+  <div id="mobile-menu" class="md:hidden hidden border-t bg-white">
+    <ul class="flex flex-col p-4 gap-3">
+      {links.map((l) => (
+        <li>
+          <a href={l.href}
+             class:list={[
+               'block py-1',
+               isActive(l.href) ? 'text-blue-600 font-semibold' : 'text-gray-700',
+             ]}>{l.label}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  btn?.addEventListener('click', () => {
+    const isHidden = menu?.classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', String(!isHidden));
+  });
+</script>

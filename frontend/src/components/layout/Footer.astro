@@ -1,0 +1,33 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="border-t mt-20">
+  <div class="max-w-6xl mx-auto px-4 py-10 grid gap-8 md:grid-cols-3">
+    <div>
+      <p class="font-bold text-lg text-blue-600 mb-2">Agency</p>
+      <p class="text-sm text-gray-600">Разработка сайтов, дизайн, маркетинг.</p>
+    </div>
+
+    <div>
+      <p class="font-semibold mb-3">Навигация</p>
+      <ul class="space-y-2 text-sm">
+        <li><a href="/services" class="hover:text-blue-600">Услуги</a></li>
+        <li><a href="/blog" class="hover:text-blue-600">Блог</a></li>
+        <li><a href="/about" class="hover:text-blue-600">О нас</a></li>
+        <li><a href="/contact" class="hover:text-blue-600">Контакты</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <p class="font-semibold mb-3">Контакты</p>
+      <ul class="space-y-2 text-sm text-gray-600">
+        <li>hello@agency.ru</li>
+        <li>+7 (999) 123-45-67</li>
+        <li>Москва, ул. Примерная, 1</li>
+      </ul>
+    </div>
+  </div>
+  <div class="border-t py-4 text-center text-sm text-gray-500">
+    © {year} Agency. Все права защищены.
+  </div>
+</footer>
