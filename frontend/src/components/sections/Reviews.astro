@@ -1,6 +1,6 @@
 ---
-import { getReviews } from '../../lib/api';
-const reviews = await getReviews();
+import { getReviews, safeLoad } from '../../lib/api';
+const { data: reviews } = await safeLoad(() => getReviews(), [] as any[]);
 ---
 <section class="py-16 max-w-[1184px] mx-auto px-4 font-inter">
   <h2 class="font-manrope font-extrabold text-3xl text-[#101D3A] mb-8">Отзывы клиентов</h2>
@@ -30,9 +30,9 @@ const reviews = await getReviews();
       reviews.map((r: any) => (
         <div class="bg-white p-6 rounded-[20px] border border-[#E3E8F1] shadow-sm">
           <div class="flex items-center gap-2 mb-2">
-            <span class="text-yellow-400 text-lg">{'★'.repeat(r.attributes?.rating || r.rating)}</span>
+            <span class="text-yellow-400 text-lg">{'★'.repeat(Number(r.attributes?.rating ?? r.rating ?? 0))}</span>
             <span class="font-bold text-[#101D3A]">
-  {r.users_permissions_user?.username || 'Аноним'}
+  {r.users_permissions_user?.username || r.attributes?.users_permissions_user?.username || 'Аноним'}
 </span>
           </div>
           <p class="text-[#35415B] text-sm leading-relaxed">{r.attributes?.text || r.text}</p>

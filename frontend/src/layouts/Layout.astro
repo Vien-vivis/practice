@@ -6,11 +6,15 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
+  jsonLd?: Record<string, unknown>;
 }
 
 const {
   title = 'Agency — digital-студия',
   description = 'Разработка сайтов, дизайн, маркетинг',
+  ogImage,
+  jsonLd,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -29,6 +33,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 
     <title>{title}</title>
     <meta name="description" content={description} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    {jsonLd && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
   </head>
   <body class="flex flex-col min-h-screen">
     <!-- ВОТ ОНА, ШАПКА -->

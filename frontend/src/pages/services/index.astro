@@ -1,9 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ServicesGrid from '../../components/sections/ServicesGrid.astro';
-import { getServices } from '../../lib/api';
+import type { Service } from '../../lib/types';
+import { getServices, safeLoad } from '../../lib/api';
 
-const services = await getServices();
+const { data: services, failed } = await safeLoad<Service[]>(() => getServices(), []);
 ---
 <Layout title="Услуги — Agency" description="Полный спектр digital-услуг">
   
@@ -48,6 +49,11 @@ const services = await getServices();
 
   <!-- Сами карточки услуг (вызываем компонент) -->
   <div class="bg-[#FAFBFC]">
+    {failed && (
+      <p class="max-w-[1184px] mx-auto px-4 pt-8 text-[14px] text-amber-800">
+        Не удалось загрузить список услуг: API недоступен. Проверьте, что Strapi запущен.
+      </p>
+    )}
     <ServicesGrid services={services} title="Что мы умеем" />
   </div>
   

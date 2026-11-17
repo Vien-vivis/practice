@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getServices } from './api';
+import { getServices, safeLoad } from './api';
 
 describe('getServices', () => {
   beforeEach(() => {
@@ -31,5 +31,19 @@ describe('getServices', () => {
     } as any);
 
     await expect(getServices()).rejects.toThrow();
+  });
+});
+
+describe('safeLoad', () => {
+  it('возвращает данные, если загрузка удалась', async () => {
+    const res = await safeLoad(async () => [1, 2, 3], []);
+    expect(res).toEqual({ data: [1, 2, 3], failed: false });
+  });
+
+  it('не падает при ошибке API и отдаёт фолбэк', async () => {
+    const res = await safeLoad(async () => {
+      throw new Error('fetch failed');
+    }, [] as number[]);
+    expect(res).toEqual({ data: [], failed: true });
   });
 });

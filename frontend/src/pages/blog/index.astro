@@ -1,11 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BlogGrid from '../../components/sections/BlogGrid.astro';
-import { getPosts, getCategories } from '../../lib/api';
+import type { Category, Post } from '../../lib/types';
+import { getPosts, getCategories, safeLoad } from '../../lib/api';
 
 // Получаем параметры из URL
 const pageParam = Astro.url.searchParams.get('page');
-const page = pageParam ? Math.max(1, Number(pageParam)) : 1;
+const parsedPage = Number(pageParam);
+const page = Number.isFinite(parsedPage) && parsedPage >= 1 ? Math.floor(parsedPage) : 1;
 
 const categoryParam = Astro.url.searchParams.get('category');
 const category = categoryParam && categoryParam.trim() !== '' ? categoryParam.trim() : undefined;
@@ -14,13 +16,21 @@ const qParam = Astro.url.searchParams.get('q');
 const q = qParam ? qParam.trim().toLowerCase() : '';
 
 // Запрашиваем данные
-const categories = await getCategories();
-const { items: posts, pageCount } = await getPosts({ page, category, pageSize: 6 });
+const [categoriesRes, postsRes] = await Promise.all([
+  safeLoad<Category[]>(() => getCategories(), []),
+  safeLoad(() => getPosts({ page, category, pageSize: 6 }), {
+    items: [] as Post[], total: 0, pageCount: 1, page,
+  }),
+]);
+
+const categories = categoriesRes.data;
+const { items: posts, pageCount } = postsRes.data;
+const apiUnavailable = categoriesRes.failed || postsRes.failed;
 
 // Поиск на клиенте
 const filteredPosts = q
   ? posts.filter((p) =>
-      p.title.toLowerCase().includes(q) ||
+      (p.title ?? '').toLowerCase().includes(q) ||
       (p.excerpt ?? '').toLowerCase().includes(q)
     )
   : posts;
@@ -60,6 +70,12 @@ const buildPageUrl = (p: number) => {
 
   <!-- Фильтры и поиск -->
   <section class="max-w-[1184px] mx-auto px-4 py-12">
+    {apiUnavailable && (
+      <p class="mb-8 rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-3 text-[14px] text-amber-800">
+        Не удалось загрузить статьи: API недоступен. Проверьте, что Strapi запущен.
+      </p>
+    )}
+
     <form method="get" class="flex flex-wrap gap-3 mb-10">
       <input
         type="search"

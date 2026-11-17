@@ -3,19 +3,36 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/sections/Hero.astro';
 import ServicesGrid from '../components/sections/ServicesGrid.astro';
 import BlogGrid from '../components/sections/BlogGrid.astro';
-import Reviews from '../components/sections/Reviews.astro'; // <-- 1. Добавляем импорт
+import Reviews from '../components/sections/Reviews.astro';
+import type { Post, Service } from '../lib/types';
+import { getServices, getPosts, safeLoad } from '../lib/api';
 
-import { getServices, getPosts } from '../lib/api';
+const [servicesRes, postsRes] = await Promise.all([
+  safeLoad<Service[]>(() => getServices(), []),
+  safeLoad(() => getPosts({ pageSize: 3 }), {
+    items: [] as Post[], total: 0, pageCount: 1, page: 1,
+  }),
+]);
 
-const services = await getServices();
-const { items: posts } = await getPosts({ pageSize: 3 });
+const services = servicesRes.data;
+const posts = postsRes.data.items;
+const apiUnavailable = servicesRes.failed || postsRes.failed;
 ---
 <Layout title="Agency — digital-студия" description="Разработка сайтов, дизайн, маркетинг">
-  <Hero ... />
+  <Hero />
+
+  {apiUnavailable && (
+    <div class="max-w-[1184px] mx-auto px-4 pt-6">
+      <p class="rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-3 text-[14px] text-amber-800">
+        Контент временно недоступен: не удалось связаться с API. Проверьте, что Strapi запущен
+        (по умолчанию http://localhost:1337) и переменная STRAPI_URL указывает на него.
+      </p>
+    </div>
+  )}
+
   <ServicesGrid services={services} />
   <BlogGrid posts={posts.slice(0, 3)} title="Из блога" />
-  
-  <!-- 2. Добавляем блок отзывов -->
+
   <div class="bg-white border-t border-[#E3E8F1]">
     <Reviews />
   </div>

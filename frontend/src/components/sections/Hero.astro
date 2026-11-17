@@ -2,7 +2,8 @@
 import Button from '../ui/Button.astro';
 
 interface Props {
-  title: string;
+  /** Заголовок сейчас захардкожен в разметке, поэтому проп необязателен. */
+  title?: string;
   subtitle?: string;
   ctaText?: string;
   ctaHref?: string;

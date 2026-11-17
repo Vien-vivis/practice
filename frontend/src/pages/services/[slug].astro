@@ -2,38 +2,46 @@
 import Layout from '../../layouts/Layout.astro';
 import SmartImage from '../../components/ui/SmartImage.astro';
 import Button from '../../components/ui/Button.astro';
-import { getServices, getService } from '../../lib/api';
-import { blocksToHtml } from '../../lib/blocks'; 
+import type { Service } from '../../lib/types';
+import { getService, safeLoad } from '../../lib/api';
+import { blocksToHtml, blocksToText } from '../../lib/blocks';
 
-export async function getStaticPaths() {
-  try {
-    const services = await getServices();
-    return services.map((s) => ({ params: { slug: s.slug } }));
-  } catch {
-    return [];
-  }
-}
-
+// output: 'server' — страница рендерится на каждый запрос, поэтому getStaticPaths
+// здесь не работает (Astro его игнорирует). Несуществующий slug отдаём как 404.
 const { slug } = Astro.params;
-const service = slug ? await getService(slug) : null;
+const { data: service, failed } = await safeLoad<Service | null>(
+  () => (slug ? getService(slug) : Promise.resolve(null)),
+  null,
+);
 
 if (!service) {
-  return Astro.redirect('/404');
+  // 503 — если упал сам API, 404 — если услуги с таким slug просто нет.
+  Astro.response.status = failed ? 503 : 404;
 }
 ---
-<Layout title={`${service.title} — Agency`} description={service.description?.slice(0, 160)}>
-  <article class="max-w-3xl mx-auto px-4 py-16">
-  {service.image && (
-    <SmartImage media={service.image} class="w-full rounded-2xl mb-8 aspect-video object-cover" eager />
-  )}
-  
-  <h1 class="font-manrope font-extrabold text-[40px] text-[#101D3A] mb-6">{service.title}</h1>
-  
-  <!-- Вот эта обертка prose применит наши стили -->
-  <div class="prose max-w-none text-[#35415B]" set:html={blocksToHtml(service.description)} />
+{service ? (
+  <Layout title={`${service.title} — Agency`} description={blocksToText(service.description).slice(0, 160) || undefined}>
+    <article class="max-w-3xl mx-auto px-4 py-16">
+      {service.image && (
+        <SmartImage media={service.image} class="w-full rounded-2xl mb-8 aspect-video object-cover" eager />
+      )}
 
-  <div class="mt-10">
-    <Button href="/contact" size="lg">Обсудить проект</Button>
-  </div>
-</article>
-</Layout>
+      <h1 class="font-manrope font-extrabold text-[40px] text-[#101D3A] mb-6">{service.title}</h1>
+
+      <!-- Вот эта обертка prose применит наши стили -->
+      <div class="prose max-w-none text-[#35415B]" set:html={blocksToHtml(service.description)} />
+
+      <div class="mt-10">
+        <Button href="/contact" size="lg">Обсудить проект</Button>
+      </div>
+    </article>
+  </Layout>
+) : (
+  <Layout title="Услуга не найдена — Agency">
+    <section class="max-w-2xl mx-auto px-4 py-24 text-center">
+      <h1 class="text-6xl font-bold mb-4">404</h1>
+      <p class="text-gray-600 mb-8">{failed ? 'API временно недоступен, попробуйте позже.' : 'Такой услуги нет.'}</p>
+      <Button href="/services">Все услуги</Button>
+    </section>
+  </Layout>
+)}
