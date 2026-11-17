@@ -1,20 +1,54 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2563eb;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-manrope: 'Manrope', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --color-primary: #1760F5;
+  --color-primary-hover: #0D4ED8;
+  --color-headings: #101D3A;
+  --color-text: #35415B;
+  --color-muted: #78839A;
+  --color-border: #E3E8F1;
+  --color-light-blue: #EAF0FF;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
-body { @apply bg-white text-gray-900 antialiased; }
+body {
+  @apply bg-[#FAFBFC] text-[#35415B] antialiased font-inter;
+}
 
-.prose h1 { @apply text-3xl font-bold mt-8 mb-4; }
-.prose h2 { @apply text-2xl font-bold mt-6 mb-3; }
-.prose h3 { @apply text-xl font-semibold mt-4 mb-2; }
-.prose p  { @apply my-3 leading-relaxed; }
-.prose ul { @apply list-disc pl-6 my-3; }
-.prose ol { @apply list-decimal pl-6 my-3; }
-.prose a  { @apply text-blue-600 underline; }
-.prose img { @apply rounded-xl my-4; }
-.prose blockquote { @apply border-l-4 border-blue-500 pl-4 italic text-gray-700 my-4; }
+/* Полоса прокрутки */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #F4F7FF; }
+::-webkit-scrollbar-thumb { background: #D1D9E6; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #1760F5; }
+
+/* Анимация */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 4s ease-in-out infinite;
+}
+
+/* Стили для красивого отображения Rich Text */
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+.prose li {
+  margin-bottom: 0.5rem;
+}
+.prose strong {
+  font-weight: 600;
+  color: #101D3A;
+}

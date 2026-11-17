@@ -1,25 +1,31 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BlogGrid from '../../components/sections/BlogGrid.astro';
-import Hero from '../../components/sections/Hero.astro';
 import { getPosts, getCategories } from '../../lib/api';
 
-const page = Math.max(1, Number(Astro.url.searchParams.get('page') ?? 1));
-const category = Astro.url.searchParams.get('category') ?? undefined;
-const q = (Astro.url.searchParams.get('q') ?? '').trim().toLowerCase();
+// Получаем параметры из URL
+const pageParam = Astro.url.searchParams.get('page');
+const page = pageParam ? Math.max(1, Number(pageParam)) : 1;
 
+const categoryParam = Astro.url.searchParams.get('category');
+const category = categoryParam && categoryParam.trim() !== '' ? categoryParam.trim() : undefined;
+
+const qParam = Astro.url.searchParams.get('q');
+const q = qParam ? qParam.trim().toLowerCase() : '';
+
+// Запрашиваем данные
 const categories = await getCategories();
-const { items, pageCount } = await getPosts({ page, category, pageSize: 6 });
+const { items: posts, pageCount } = await getPosts({ page, category, pageSize: 6 });
 
-// Поиск по заголовку и эксцерпту — уже внутри выбранной категории
-const filtered = q
-  ? items.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        (p.excerpt ?? '').toLowerCase().includes(q)
+// Поиск на клиенте
+const filteredPosts = q
+  ? posts.filter((p) =>
+      p.title.toLowerCase().includes(q) ||
+      (p.excerpt ?? '').toLowerCase().includes(q)
     )
-  : items;
+  : posts;
 
+// Ссылки для пагинации
 const buildPageUrl = (p: number) => {
   const params = new URLSearchParams();
   if (p > 1) params.set('page', String(p));
@@ -29,69 +35,86 @@ const buildPageUrl = (p: number) => {
   return `/blog${s ? `?${s}` : ''}`;
 };
 ---
-<Layout title="Блог — Agency" description="Статьи и новости">
-  <Hero title="Блог" subtitle="Статьи, кейсы, гайды" />
+<Layout title="Блог — Agency" description="Все статьи и новости">
+  
+  <!-- Шапка страницы блога -->
+  <section class="relative bg-[#F4F7FF] pt-24 pb-20 overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNFM0U4RjEiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none"></div>
+    <div class="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#EAF0FF] rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+    
+    <div class="max-w-[1184px] mx-auto px-4 relative z-10">
+      <div class="max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#E3E8F1] text-[#1760F5] text-[13px] font-semibold mb-6 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-[#1760F5] animate-pulse"></span>
+          Наш блог
+        </div>
+        <h1 class="font-manrope font-extrabold text-[44px] md:text-[56px] leading-[1.05] text-[#101D3A] tracking-tight mb-6">
+          Все <span class="text-[#1760F5]">статьи</span>
+        </h1>
+        <p class="text-[16px] md:text-[18px] text-[#35415B] leading-relaxed">
+          Полезные материалы, кейсы из практики и новости нашей digital-студии.
+        </p>
+      </div>
+    </div>
+  </section>
 
-  <section class="max-w-6xl mx-auto px-4 py-12">
-    <!-- ФИЛЬТР -->
+  <!-- Фильтры и поиск -->
+  <section class="max-w-[1184px] mx-auto px-4 py-12">
     <form method="get" class="flex flex-wrap gap-3 mb-10">
       <input
         type="search"
         name="q"
         value={q}
         placeholder="Поиск..."
-        class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="border border-[#E3E8F1] rounded-[12px] px-4 py-2.5 text-sm focus:outline-none focus:border-[#1760F5] focus:ring-2 focus:ring-[#1760F5]/20"
       />
 
       <select
         name="category"
-        class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="border border-[#E3E8F1] rounded-[12px] px-4 py-2.5 text-sm focus:outline-none focus:border-[#1760F5] focus:ring-2 focus:ring-[#1760F5]/20 bg-white"
       >
-        <option value="" selected={!category}>Все категории</option>
-        {categories.map((c) => (
-          <option value={c.slug} selected={c.slug === category}>
-            {c.name}
-          </option>
-        ))}
+        <option value="">Все категории</option>
+        {categories.map((c) =>
+          c.slug === category ? (
+            <option value={c.slug} selected>{c.name}</option>
+          ) : (
+            <option value={c.slug}>{c.name}</option>
+          )
+        )}
       </select>
 
       <button
         type="submit"
-        class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+        class="bg-[#1760F5] hover:bg-[#0D4ED8] text-white px-6 py-2.5 rounded-[12px] text-sm font-semibold transition-colors"
       >
         Найти
       </button>
 
-      {category && (
-        <a
-          href="/blog"
-          class="text-sm text-blue-600 hover:underline self-center"
-        >
+      {(category || q) && (
+        <a href="/blog" class="text-sm text-[#78839A] hover:text-[#101D3A] self-center ml-2 transition-colors">
           Сбросить
         </a>
       )}
     </form>
 
-    <!-- РЕЗУЛЬТАТЫ -->
-    {filtered.length === 0 ? (
-      <p class="text-gray-500 py-12 text-center">
-        Ничего не найдено. Попробуйте другую категорию или сбросьте фильтр.
-      </p>
+    <!-- Сетка статей -->
+    {filteredPosts.length === 0 ? (
+      <p class="text-[#78839A] py-12 text-center">Ничего не найдено. Попробуйте изменить запрос.</p>
     ) : (
-      <BlogGrid posts={filtered} title="" />
+      <BlogGrid posts={filteredPosts} title="" />
     )}
 
-    <!-- ПАГИНАЦИЯ -->
+    <!-- Пагинация -->
     {pageCount > 1 && (
-      <nav class="flex justify-center gap-2 mt-12">
+      <nav class="flex justify-center gap-2 mt-12 mb-16">
         {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => (
           <a
             href={buildPageUrl(p)}
             class:list={[
-              'px-3.5 py-1.5 rounded border text-sm',
+              'w-10 h-10 flex items-center justify-center rounded-[8px] text-sm font-semibold transition-colors border',
               p === page
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'border-gray-300 hover:bg-gray-50',
+                ? 'bg-[#1760F5] text-white border-[#1760F5] shadow-md'
+                : 'bg-white border-[#E3E8F1] text-[#35415B] hover:bg-[#F4F7FF]',
             ]}
           >
             {p}

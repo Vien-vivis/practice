@@ -1,12 +1,66 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Hero from '../../components/sections/Hero.astro';
 import ServicesGrid from '../../components/sections/ServicesGrid.astro';
 import { getServices } from '../../lib/api';
 
 const services = await getServices();
 ---
-<Layout title="Услуги — Agency" description="Наши услуги">
-  <Hero title="Услуги" subtitle="Что мы умеем" />
-  <ServicesGrid services={services} title="" />
+<Layout title="Услуги — Agency" description="Полный спектр digital-услуг">
+  
+  <!-- Шапка страницы с градиентом и сеткой -->
+  <section class="relative bg-[#F4F7FF] pt-20 pb-16 overflow-hidden">
+    <!-- Фоновая сетка -->
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNFM0U4RjEiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none"></div>
+    
+    <div class="max-w-[1184px] mx-auto px-4 relative z-10">
+      <div class="max-w-2xl">
+        <h1 class="font-manrope font-extrabold text-[44px] md:text-[56px] text-[#101D3A] tracking-tight mb-4">
+          Наши услуги
+        </h1>
+        <p class="text-[18px] text-[#35415B] leading-relaxed">
+          Мы создаем цифровые продукты, которые помогают бизнесу расти. От идеи и прототипа до запуска и продвижения.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Блок с преимуществами (цифрами) -->
+  <section class="relative z-20 -mt-8 max-w-[1184px] mx-auto px-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white p-6 rounded-[20px] border border-[#E3E8F1] shadow-sm text-center">
+        <p class="font-manrope font-extrabold text-[32px] text-[#1760F5] mb-1">120+</p>
+        <p class="text-[13px] font-medium text-[#78839A]">Проектов</p>
+      </div>
+      <div class="bg-white p-6 rounded-[20px] border border-[#E3E8F1] shadow-sm text-center">
+        <p class="font-manrope font-extrabold text-[32px] text-[#1760F5] mb-1">7</p>
+        <p class="text-[13px] font-medium text-[#78839A]">Лет опыта</p>
+      </div>
+      <div class="bg-white p-6 rounded-[20px] border border-[#E3E8F1] shadow-sm text-center">
+        <p class="font-manrope font-extrabold text-[32px] text-[#1760F5] mb-1">40+</p>
+        <p class="text-[13px] font-medium text-[#78839A]">Клиентов</p>
+      </div>
+      <div class="bg-white p-6 rounded-[20px] border border-[#E3E8F1] shadow-sm text-center">
+        <p class="font-manrope font-extrabold text-[32px] text-[#1760F5] mb-1">24/7</p>
+        <p class="text-[13px] font-medium text-[#78839A]">Поддержка</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Сами карточки услуг (вызываем компонент) -->
+  <div class="bg-[#FAFBFC]">
+    <ServicesGrid services={services} title="Что мы умеем" />
+  </div>
+  
+  <!-- Блок с призывом к действию внизу -->
+  <section class="py-16 max-w-[1184px] mx-auto px-4">
+    <div class="bg-[#101D3A] rounded-[24px] p-10 md:p-14 text-center relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-[#1760F5] rounded-full blur-[100px] opacity-50"></div>
+      <h2 class="font-manrope font-bold text-[32px] text-white mb-4 relative z-10">Не нашли нужную услугу?</h2>
+      <p class="text-[#A1B0C9] text-[16px] mb-8 relative z-10">Свяжитесь с нами, и мы подберем индивидуальное решение для вашей задачи.</p>
+      <a href="/contact" class="inline-flex items-center justify-center bg-[#1760F5] hover:bg-[#0D4ED8] text-white h-[52px] px-8 rounded-[12px] text-[16px] font-semibold shadow-lg shadow-blue-500/30 transition-all relative z-10">
+        Обсудить проект →
+      </a>
+    </div>
+  </section>
+
 </Layout>

@@ -1,4 +1,5 @@
 ---
+import { translateStrapiError } from '../../lib/errors';
 ---
 <section class="py-16 max-w-3xl mx-auto px-4">
   <h2 class="text-3xl font-bold mb-6">Оставить заявку</h2>
@@ -38,6 +39,8 @@
 </section>
 
 <script>
+  import { translateStrapiError } from '../../lib/errors';
+
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
   const status = document.getElementById('cf-status') as HTMLParagraphElement | null;
 
@@ -54,15 +57,15 @@
     };
 
     if (!payload.name || !payload.email || !payload.message) {
-      status.textContent = 'Заполните все поля';
-      status.className = 'text-sm text-red-600';
+      status.textContent = 'Пожалуйста, заполните все поля.';
+      status.className = 'text-sm text-center mt-4 font-medium text-red-500';
       return;
     }
 
     btn.disabled = true;
-    status.textContent = 'Отправка...';
-    status.className = 'text-sm text-gray-600';
-
+    btn.innerHTML = 'Отправка...';
+    status.textContent = '';
+    
     try {
       const base = import.meta.env.PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
       const res = await fetch(`${base}/api/requests`, {
@@ -71,16 +74,22 @@
         body: JSON.stringify({ data: payload }),
       });
 
-      if (!res.ok) throw new Error('bad response');
+      if (!res.ok) {
+        const errorData = await res.json();
+        // Переводим ошибку с помощью нашей функции
+        const ruError = translateStrapiError(errorData.error?.message || '');
+        throw new Error(ruError);
+      }
 
-      status.textContent = 'Спасибо! Мы свяжемся с вами.';
-      status.className = 'text-sm text-green-600';
+      status.textContent = 'Спасибо! Мы свяжемся с вами в ближайшее время.';
+      status.className = 'text-sm text-center mt-4 font-medium text-green-600';
       form.reset();
-    } catch {
-      status.textContent = 'Ошибка отправки. Попробуйте позже.';
-      status.className = 'text-sm text-red-600';
+    } catch (error: any) {
+      status.textContent = error.message;
+      status.className = 'text-sm text-center mt-4 font-medium text-red-500';
     } finally {
       btn.disabled = false;
+      btn.innerHTML = `Отправить заявку`;
     }
   });
 </script>

@@ -1,0 +1,102 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Вход — Agency">
+  <section class="py-20 max-w-md mx-auto px-4 min-h-[60vh]">
+    <div class="bg-white p-8 rounded-[24px] border border-[#E3E8F1] shadow-lg">
+      <h1 id="form-title" class="font-manrope font-extrabold text-3xl text-[#101D3A] mb-6 text-center">Вход</h1>
+
+      <form id="auth-form" class="space-y-4">
+        <div id="username-group" class="hidden">
+          <label class="block text-sm font-semibold text-[#101D3A] mb-1">Имя</label>
+          <input type="text" id="username" class="w-full bg-[#F8FAFC] border border-[#E3E8F1] rounded-lg px-4 py-3 outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-[#101D3A] mb-1">Email</label>
+          <input type="email" id="email" required class="w-full bg-[#F8FAFC] border border-[#E3E8F1] rounded-lg px-4 py-3 outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-[#101D3A] mb-1">Пароль</label>
+          <input type="password" id="password" required class="w-full bg-[#F8FAFC] border border-[#E3E8F1] rounded-lg px-4 py-3 outline-none" />
+        </div>
+
+        <button type="submit" id="submit-btn" class="w-full bg-[#1760F5] hover:bg-[#0D4ED8] text-white h-[52px] rounded-lg font-semibold transition-colors mt-2">
+          Войти
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-[#78839A] mt-6">
+        <span id="toggle-text">Нет аккаунта?</span>
+        <button id="toggle-btn" type="button" class="text-[#1760F5] font-semibold hover:underline ml-1">Зарегистрироваться</button>
+      </p>
+
+      <p id="auth-status" class="text-center text-sm mt-4 font-medium"></p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  let isLoginMode = true;
+  const form = document.getElementById('auth-form') as HTMLFormElement;
+  const title = document.getElementById('form-title') as HTMLElement;
+  const usernameGroup = document.getElementById('username-group') as HTMLElement;
+  const toggleBtn = document.getElementById('toggle-btn') as HTMLButtonElement;
+  const toggleText = document.getElementById('toggle-text') as HTMLElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const status = document.getElementById('auth-status') as HTMLElement;
+
+  toggleBtn?.addEventListener('click', () => {
+    isLoginMode = !isLoginMode;
+    title.textContent = isLoginMode ? 'Вход' : 'Регистрация';
+    toggleText.textContent = isLoginMode ? 'Нет аккаунта?' : 'Уже есть аккаунт?';
+    toggleBtn.textContent = isLoginMode ? 'Зарегистрироваться' : 'Войти';
+    submitBtn.textContent = isLoginMode ? 'Войти' : 'Зарегистрироваться';
+    usernameGroup.classList.toggle('hidden', isLoginMode);
+    status.textContent = '';
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = (document.getElementById('password') as HTMLInputElement).value;
+    const username = (document.getElementById('username') as HTMLInputElement).value;
+
+    status.textContent = 'Загрузка...';
+    status.className = 'text-center text-sm mt-4 font-medium text-gray-500';
+
+    const base = import.meta.env.PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+    const endpoint = isLoginMode ? '/api/auth/local' : '/api/auth/local/register';
+    
+    const body = isLoginMode 
+      ? { identifier: email, password } 
+      : { username, email, password };
+
+    try {
+      const res = await fetch(`${base}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error?.message || 'Ошибка авторизации');
+      
+      // Сохраняем токен
+      localStorage.setItem('jwt', data.jwt);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('userDocumentId', data.user.documentId);
+      
+      status.textContent = 'Успешно! Перенаправление...';
+      status.className = 'text-center text-sm mt-4 font-medium text-green-600';
+      
+      setTimeout(() => window.location.href = '/', 1000);
+    } catch (error: any) {
+      // Выводим ошибку (включая "Register action is currently disabled")
+      status.textContent = error.message;
+      status.className = 'text-center text-sm mt-4 font-medium text-red-500';
+    }
+  });
+</script>

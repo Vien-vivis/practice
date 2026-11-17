@@ -3,20 +3,21 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/sections/Hero.astro';
 import ServicesGrid from '../components/sections/ServicesGrid.astro';
 import BlogGrid from '../components/sections/BlogGrid.astro';
+import Reviews from '../components/sections/Reviews.astro'; // <-- 1. Добавляем импорт
+
 import { getServices, getPosts } from '../lib/api';
 
 const services = await getServices();
 const { items: posts } = await getPosts({ pageSize: 3 });
 ---
 <Layout title="Agency — digital-студия" description="Разработка сайтов, дизайн, маркетинг">
-  <Hero
-    title="Создаём сайты, которые работают"
-    subtitle="Разработка, дизайн и продвижение под ключ"
-    ctaText="Обсудить проект"
-    ctaHref="/contact"
-    secondaryText="Наши услуги"
-    secondaryHref="/services"
-  />
+  <Hero ... />
   <ServicesGrid services={services} />
-  <BlogGrid posts={posts} title="Из блога" />
+  <BlogGrid posts={posts.slice(0, 3)} title="Из блога" />
+  
+  <!-- 2. Добавляем блок отзывов -->
+  <div class="bg-white border-t border-[#E3E8F1]">
+    <Reviews />
+  </div>
+
 </Layout>

@@ -1,0 +1,104 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Личный кабинет — Agency">
+  <section class="py-20 max-w-[800px] mx-auto px-4 min-h-[60vh]">
+    <div class="bg-white p-8 md:p-12 rounded-[24px] border border-[#E3E8F1] shadow-lg">
+      
+      <!-- Шапка профиля -->
+      <div class="flex items-center justify-between mb-8 border-b border-[#E3E8F1] pb-8">
+        <div class="flex items-center gap-6">
+          <div class="w-20 h-20 rounded-full bg-[#EAF0FF] text-[#1760F5] flex items-center justify-center text-3xl font-extrabold" id="profile-avatar">
+            U
+          </div>
+          <div>
+            <h1 class="font-manrope font-extrabold text-3xl text-[#101D3A]" id="profile-username">Загрузка...</h1>
+            <p class="text-[#78839A] text-[15px] mt-1" id="profile-email">Загрузка...</p>
+          </div>
+        </div>
+        <button id="logout-btn" class="text-[#78839A] hover:text-red-500 font-semibold text-[14px] transition-colors px-4 py-2 rounded-lg hover:bg-red-50">
+          Выйти
+        </button>
+      </div>
+
+      <h2 class="font-manrope font-bold text-2xl text-[#101D3A] mb-6">Мои отзывы</h2>
+      <div id="my-reviews" class="space-y-4">
+        <p class="text-[#78839A]">Загрузка отзывов...</p>
+      </div>
+
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const token = localStorage.getItem('jwt');
+  const userStr = localStorage.getItem('user');
+  const userDocId = localStorage.getItem('userDocumentId');
+
+  if (!token || !userStr) {
+    window.location.href = '/auth';
+  } else {
+    const user = JSON.parse(userStr);
+    
+    // Заполняем профиль
+    const usernameEl = document.getElementById('profile-username');
+    const emailEl = document.getElementById('profile-email');
+    const avatarEl = document.getElementById('profile-avatar');
+    const reviewsContainer = document.getElementById('my-reviews');
+
+    if (usernameEl) usernameEl.textContent = user.username;
+    if (emailEl) emailEl.textContent = user.email;
+    if (avatarEl) avatarEl.textContent = user.username[0].toUpperCase();
+
+    // Кнопка выхода
+    document.getElementById('logout-btn')?.addEventListener('click', function() {
+      localStorage.clear();
+      window.location.href = '/';
+    });
+
+    // Загрузка отзывов
+    const base = import.meta.env.PUBLIC_STRAPI_URL || 'http://localhost:1337';
+    
+    fetch(base + '/api/reviews?populate=*', {
+      headers: { Authorization: 'Bearer ' + token }
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      const allReviews = data.data || [];
+      
+      // Наш фильтр: проверяем наличие users_permissions_user и совпадение documentId
+      const myReviews = [];
+      
+      for (let i = 0; i < allReviews.length; i++) {
+        const r = allReviews[i];
+        if (r.users_permissions_user && r.users_permissions_user.documentId === userDocId) {
+          myReviews.push(r);
+        }
+      }
+
+      if (myReviews.length === 0) {
+        if (reviewsContainer) {
+           reviewsContainer.innerHTML = '<p class="text-red-500">Отзывы не найдены. Ваш docId: ' + userDocId + '</p>';
+        }
+        return;
+      }
+      
+      // Рисуем отзывы
+      let html = '';
+      for (let i = 0; i < myReviews.length; i++) {
+        let r = myReviews[i];
+        let stars = '★'.repeat(r.rating || 5);
+        
+        html += '<div class="bg-[#F8FAFC] p-4 rounded-[12px] border border-[#E3E8F1] mb-3">';
+        html += '<div class="text-yellow-400 text-lg mb-1">' + stars + '</div>';
+        html += '<p class="text-[#35415B]">' + r.text + '</p>';
+        html += '</div>';
+      }
+      
+      if (reviewsContainer) reviewsContainer.innerHTML = html;
+    })
+    .catch(function(err) {
+      if (reviewsContainer) reviewsContainer.innerHTML = '<p class="text-red-500">Ошибка сети.</p>';
+    });
+  }
+</script>

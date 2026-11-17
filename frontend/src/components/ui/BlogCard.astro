@@ -1,0 +1,25 @@
+---
+import type { Post } from '../../lib/types';
+import SmartImage from './SmartImage.astro';
+
+interface Props { post: Post; }
+const { post } = Astro.props;
+
+const cat = post.category?.[0];
+const auth = post.authors?.[0];
+const fmt = (d: string) => new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<a href={`/blog/${post.slug}`} class="group flex flex-col bg-white border border-[#E3E8F1] rounded-[20px] overflow-hidden hover:shadow-lg transition-all duration-300">
+  <div class="relative h-[180px] w-full bg-[#F4F7FF] overflow-hidden">
+    <SmartImage media={post.cover} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+    {cat && <span class="absolute top-4 left-4 bg-white/95 text-[#101D3A] text-[12px] font-bold px-3 py-1.5 rounded-[8px] uppercase">{cat.name}</span>}
+  </div>
+  <div class="p-6 flex-grow flex flex-col">
+    <div class="flex items-center gap-3 text-[12px] text-[#78839A] mb-3">
+      <span>{fmt(post.publishedAt)}</span>
+      {auth && <><span>•</span><span>{auth.name}</span></>}
+    </div>
+    <h3 class="font-manrope font-bold text-[18px] text-[#101D3A] mb-2 group-hover:text-[#1760F5]">{post.title}</h3>
+    {post.excerpt && <p class="text-[#78839A] text-[14px] line-clamp-2">{post.excerpt}</p>}
+  </div>
+</a>

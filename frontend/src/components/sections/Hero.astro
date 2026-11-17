@@ -12,19 +12,59 @@ interface Props {
 
 const {
   title, subtitle,
-  ctaText = 'Связаться', ctaHref = '/contact',
-  secondaryText, secondaryHref,
+  ctaText = 'Обсудить проект', ctaHref = '/contact',
+  secondaryText = 'Наши услуги', secondaryHref = '/services',
 } = Astro.props;
 ---
-<section class="bg-gradient-to-br from-blue-50 to-white">
-  <div class="max-w-6xl mx-auto px-4 py-20 md:py-28">
-    <h1 class="text-4xl md:text-6xl font-bold tracking-tight max-w-3xl">{title}</h1>
-    {subtitle && <p class="mt-6 text-lg md:text-xl text-gray-600 max-w-2xl">{subtitle}</p>}
-    <div class="mt-8 flex flex-wrap gap-4">
-      <Button href={ctaHref} size="lg">{ctaText}</Button>
-      {secondaryText && secondaryHref && (
-        <Button href={secondaryHref} variant="outline" size="lg">{secondaryText}</Button>
-      )}
+<section class="relative bg-[#F4F7FF] overflow-hidden pt-[120px] pb-20 lg:pt-[140px] lg:pb-28 font-inter">
+  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNFM0U4RjEiLz48L3N2Zz4=')] [mask-image:linear-gradient(to_bottom,white,transparent)] pointer-events-none"></div>
+  <div class="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[#EAF0FF] rounded-full blur-3xl opacity-60 pointer-events-none"></div>
+  <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-100 rounded-full blur-3xl opacity-40 pointer-events-none"></div>
+
+  <div class="max-w-[1184px] mx-auto px-4 flex flex-col lg:flex-row items-center gap-12 relative z-10">
+    <div class="lg:w-[55%]">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#E3E8F1] text-[#1760F5] text-[13px] font-semibold mb-6 shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-[#1760F5] animate-pulse"></span>
+        Digital-агентство полного цикла
+      </div>
+
+      <h1 class="font-manrope font-extrabold text-[44px] lg:text-[64px] leading-[1.05] text-[#101D3A] tracking-tight mb-6">
+        Создаём сайты,<br />
+        которые <span class="text-[#1760F5]">работают</span>
+      </h1>
+      
+      <p class="text-[16px] lg:text-[18px] text-[#35415B] mb-8 max-w-[460px] leading-relaxed">
+        Разработка, дизайн и продвижение под ключ. Помогаем бизнесу расти через удобные интерфейсы и точные маркетинговые стратегии.
+      </p>
+      
+      <div class="flex flex-wrap gap-4">
+        <Button href={ctaHref} class="bg-[#1760F5] hover:bg-[#0D4ED8] text-white h-[52px] px-8 rounded-[12px] text-[16px] font-semibold shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5">
+          {ctaText} <span class="ml-2 font-light">→</span>
+        </Button>
+        <Button href={secondaryHref} class="!bg-white !text-[#101D3A] border border-[#E3E8F1] hover:!bg-[#F4F7FF] h-[52px] px-8 rounded-[12px] text-[16px] font-semibold shadow-sm transition-all">
+          {secondaryText}
+        </Button>
+      </div>
+    </div>
+
+    <div class="lg:w-[45%] relative">
+      <div class="absolute inset-0 bg-gradient-to-tr from-[#1760F5]/10 to-transparent rounded-[24px] transform rotate-3 scale-105 -z-10"></div>
+      
+      <div class="w-full aspect-[4/3] bg-white rounded-[20px] shadow-[0_20px_40px_-15px_rgba(23,96,245,0.15)] border border-[#E3E8F1] p-2 relative overflow-hidden group">
+        <div class="w-full h-full bg-[#F4F7FF] rounded-[16px] flex items-center justify-center overflow-hidden">
+          <img src="/images/laptop.png" alt="Разработка сайтов" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+        </div>
+      </div>
+      
+      <div class="absolute -right-6 top-12 bg-white/90 backdrop-blur-md px-5 py-4 rounded-[16px] shadow-[0_12px_30px_-10px_rgba(0,0,0,0.1)] border border-white/50 flex items-center gap-4 animate-bounce-slow">
+        <div class="w-[42px] h-[42px] rounded-full bg-[#EAF0FF] flex items-center justify-center text-[#1760F5]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 7L13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/></svg>
+        </div>
+        <div>
+          <p class="font-manrope font-extrabold text-[20px] text-[#101D3A] leading-none">+120%</p>
+          <p class="text-[12px] font-medium text-[#78839A] mt-1">Рост трафика</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>

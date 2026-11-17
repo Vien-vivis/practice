@@ -6,15 +6,11 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
-  ogImage?: string;
-  jsonLd?: object;
 }
 
 const {
   title = 'Agency — digital-студия',
   description = 'Разработка сайтов, дизайн, маркетинг',
-  ogImage = '/images/og-default.jpg',
-  jsonLd,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -27,27 +23,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+
     <title>{title}</title>
     <meta name="description" content={description} />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:url" content={canonical} />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
-
-    {jsonLd && (
-      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-    )}
   </head>
-  <body>
+  <body class="flex flex-col min-h-screen">
+    <!-- ВОТ ОНА, ШАПКА -->
     <Header />
-    <main class="min-h-[70vh]"><slot /></main>
+    
+    <main class="flex-grow">
+      <slot />
+    </main>
+    
     <Footer />
   </body>
 </html>

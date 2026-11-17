@@ -53,10 +53,13 @@ export async function getPosts(opts: {
   url.searchParams.set('sort', 'publishedAt:desc');
   url.searchParams.set('pagination[page]', String(page));
   url.searchParams.set('pagination[pageSize]', String(pageSize));
+  
+  // Запрашиваем связи
   url.searchParams.set('populate[cover]', 'true');
   url.searchParams.set('populate[category]', 'true');
   url.searchParams.set('populate[authors]', 'true');
 
+  // Фильтр по категории
   if (category && category.trim() !== '') {
     url.searchParams.set('filters[category][slug][$eq]', category.trim());
   }
@@ -128,4 +131,14 @@ export async function createRequest(payload: {
     body: JSON.stringify({ data: payload }),
   });
   if (!res.ok) throw new Error('Failed to send request');
+}
+
+export async function getReviews() {
+  const url = new URL(`${BASE}/api/reviews`);
+  url.searchParams.set('populate', '*'); // Чтобы подтянулись данные пользователя
+
+  const res = await fetch(url.toString(), { headers: headers() });
+  if (!res.ok) throw new Error('Failed to fetch reviews');
+  const json = await res.json();
+  return json.data ?? [];
 }

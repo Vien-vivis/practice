@@ -6,53 +6,135 @@ const links = [
   { href: '/about', label: 'О нас' },
   { href: '/contact', label: 'Контакты' },
 ];
+
 const path = Astro.url.pathname;
+const isHomePage = path === '/';
 const isActive = (href: string) =>
   href === '/' ? path === '/' : path.startsWith(href);
 ---
-<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b">
-  <nav class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-    <a href="/" class="font-bold text-xl text-blue-600">Agency</a>
+<header class:list={[
+  "sticky top-0 z-50 h-[72px] font-inter transition-all duration-300",
+  isHomePage ? "bg-transparent absolute w-full border-b border-transparent" : "bg-white/80 backdrop-blur-lg border-b border-[#E3E8F1] shadow-sm"
+]}>
+  <div class="max-w-[1184px] mx-auto px-4 h-full flex items-center justify-between">
+    <a href="/" class="font-manrope font-extrabold text-[22px] text-[#101D3A] tracking-tight flex items-center gap-2">
+      <div class="w-8 h-8 bg-[#1760F5] rounded-lg flex items-center justify-center text-white text-[14px]">A</div>
+      Agency
+    </a>
 
-    <ul class="hidden md:flex gap-6">
+    <nav class="hidden md:flex items-center gap-1 bg-white/50 backdrop-blur-md px-2 py-1.5 rounded-full border border-[#E3E8F1]">
+      {links.map((l) => (
+        <a
+          href={l.href}
+          class:list={[
+            'text-[14px] px-4 py-2 rounded-full transition-all duration-200',
+            isActive(l.href)
+              ? 'bg-white text-[#1760F5] font-semibold shadow-sm'
+              : 'text-[#35415B] font-medium hover:text-[#101D3A] hover:bg-white/50'
+          ]}
+        >
+          {l.label}
+        </a>
+      ))}
+    </nav>
+
+        <!-- Блок кнопок справа -->
+    <div class="flex items-center gap-3">
+      
+      <!-- ГОСТЬ: по умолчанию СКРЫТО (hidden), скрипт покажет, если нужно -->
+      <div id="guest-menu" class="hidden items-center gap-3">
+        <a href="/auth" class="flex items-center gap-2 text-[#35415B] hover:text-[#1760F5] font-semibold text-[14px] transition-colors mr-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Вход
+        </a>
+        <a href="/contact" class="inline-flex items-center justify-center bg-[#101D3A] text-white h-[40px] px-6 rounded-[10px] text-[14px] font-semibold hover:bg-black transition-colors shadow-md">
+          Связаться
+        </a>
+      </div>
+
+      <!-- АВТОРИЗОВАННЫЙ: по умолчанию СКРЫТО (hidden) -->
+      <div id="user-menu" class="hidden items-center gap-4">
+        <a href="/profile" class="flex items-center gap-2 text-[#101D3A] font-semibold text-[14px] hover:text-[#1760F5] transition-colors group">
+          <div class="w-9 h-9 rounded-full bg-[#EAF0FF] text-[#1760F5] flex items-center justify-center font-bold">
+            <span id="user-avatar-initial">U</span>
+          </div>
+          <span id="user-name-display" class="group-hover:underline">Профиль</span>
+        </a>
+      </div>
+      
+      <!-- Бургер для мобильных -->
+      <button id="menu-toggle" class="md:hidden p-2 text-[#101D3A]">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Мобильное меню -->
+  <div id="mobile-menu" class="md:hidden hidden border-t border-[#E3E8F1] bg-white absolute w-full shadow-lg">
+    <ul class="flex flex-col p-4 gap-2 font-inter">
       {links.map((l) => (
         <li>
-          <a href={l.href}
-             class:list={[
-               'text-sm font-medium transition',
-               isActive(l.href) ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600',
-             ]}>{l.label}</a>
+          <a href={l.href} class:list={[
+            "block px-4 py-3 rounded-xl font-medium",
+            isActive(l.href) ? "bg-[#F4F7FF] text-[#1760F5]" : "text-[#35415B]"
+          ]}>{l.label}</a>
         </li>
       ))}
-    </ul>
-
-    <button id="menu-toggle" class="md:hidden p-2" aria-label="Меню" aria-expanded="false">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 6h18M3 12h18M3 18h18" />
-      </svg>
-    </button>
-  </nav>
-
-  <div id="mobile-menu" class="md:hidden hidden border-t bg-white">
-    <ul class="flex flex-col p-4 gap-3">
-      {links.map((l) => (
-        <li>
-          <a href={l.href}
-             class:list={[
-               'block py-1',
-               isActive(l.href) ? 'text-blue-600 font-semibold' : 'text-gray-700',
-             ]}>{l.label}</a>
-        </li>
-      ))}
+      <li><a href="/auth" class="block px-4 py-3 mt-2 rounded-xl bg-[#F4F7FF] text-[#1760F5] font-semibold text-center">Вход</a></li>
+      <li><a href="/contact" class="block px-4 py-3 rounded-xl bg-[#1760F5] text-white font-semibold text-center">Связаться</a></li>
     </ul>
   </div>
 </header>
 
 <script>
-  const btn = document.getElementById('menu-toggle');
-  const menu = document.getElementById('mobile-menu');
-  btn?.addEventListener('click', () => {
-    const isHidden = menu?.classList.toggle('hidden');
-    btn.setAttribute('aria-expanded', String(!isHidden));
+  // Открытие мобильного меню
+  document.getElementById('menu-toggle')?.addEventListener('click', () => {
+    document.getElementById('mobile-menu')?.classList.toggle('hidden');
   });
+
+  // Логика переключения кнопок (выполняется сразу при загрузке)
+  function updateHeader() {
+    const token = localStorage.getItem('jwt');
+    const userStr = localStorage.getItem('user');
+    
+    const guestMenu = document.getElementById('guest-menu');
+    const userMenu = document.getElementById('user-menu');
+    
+    // Сначала принудительно скрываем всё
+    if (guestMenu) {
+      guestMenu.classList.add('hidden');
+      guestMenu.classList.remove('flex');
+    }
+    if (userMenu) {
+      userMenu.classList.add('hidden');
+      userMenu.classList.remove('flex');
+    }
+
+    if (token && userStr) {
+      // Если есть токен — показываем профиль
+      if (userMenu) {
+        userMenu.classList.remove('hidden');
+        userMenu.classList.add('flex');
+      }
+      
+      const userNameDisplay = document.getElementById('user-name-display');
+      const userAvatarInitial = document.getElementById('user-avatar-initial');
+      
+      try {
+        const user = JSON.parse(userStr);
+        if (userNameDisplay) userNameDisplay.textContent = user.username;
+        if (userAvatarInitial) userAvatarInitial.textContent = user.username[0].toUpperCase();
+      } catch (e) {}
+      
+    } else {
+      // Если токена нет — показываем кнопки гостя (Вход + Связаться)
+      if (guestMenu) {
+        guestMenu.classList.remove('hidden');
+        guestMenu.classList.add('flex');
+      }
+    }
+  }
+
+  // Вызываем функцию сразу при загрузке страницы
+  updateHeader();
 </script>
